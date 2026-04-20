@@ -1,0 +1,5 @@
+# Changelog
+
+## ClockCyteR.spatial 0.1.0
+
+- Initial CRAN submission.
