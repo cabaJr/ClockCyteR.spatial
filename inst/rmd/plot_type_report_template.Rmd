@@ -1,0 +1,151 @@
+---
+title: "Plot Type Report: `r params$plot_type`"
+output: pdf_document
+params:
+  channel_params: NULL
+  file_rows: NULL
+  base_dir: NULL
+  intervals: NULL
+  channels: NULL
+  plot_type: NULL
+  save_format: NULL
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(magick)
+library(dplyr)
+library(gridExtra)
+library(grid)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+
+```
+
+---
+
+
+##
+## Plots by Type, Interval and Channel
+
+```{r params$plot_type, results='asis', fig.width=8, fig.height=8}
+
+plot_type <- params$plot_type
+plot_name <- plot_type_to_name(plot_type)
+
+base_dir       <- params$base_dir
+intervals      <- params$intervals
+channels       <- params$channels
+file_rows      <- params$file_rows
+channel_params <- params$channel_params
+save_format    <- params$save_format
+
+# Enabled channels only
+enabled_channels <- names(Filter(function(ch) ch$enabled, channel_params))
+channels <- intersect(channels, enabled_channels)
+
+# Check if multiple intervals
+multiple_intervals <- length(intervals) > 1
+
+# Loop: channel -> interval -> files
+for (channel in channels) {
+  cat("\n\n# Channel: ", channel, ": ", params$channel_params[[channel]]$label, "\n\n", sep = "")
+  
+  for (interval in intervals) {
+    # Only show interval header if multiple intervals
+    if (multiple_intervals) {
+      cat("\n\n## Interval: ", interval, "\n\n", sep = "")
+    }
+    
+    # Collect all grobs for this channel and interval across all files
+    grobs <- list()
+    grob_labels <- character(0)
+    
+    for (fid in file_rows$file_id) {
+      # Conditional path construction based on number of intervals
+      if (multiple_intervals) {
+        ch_id_folder <- file.path(
+          base_dir,
+          paste0(fid, "_results"),
+          "plots",
+          interval,
+          channel
+        )
+      } else {
+        ch_id_folder <- file.path(
+          base_dir,
+          paste0(fid, "_results"),
+          "plots",
+          channel
+        )
+      }
+      
+      plot_path <- build_plot_path(
+        file_id      = fid,
+        ch_id        = channel,
+        ch_id_folder = ch_id_folder,
+        plot_name    = plot_name,
+        save_format  = save_format
+      )
+      
+      if (file.exists(plot_path)) {
+        img <- magick::image_read_svg(plot_path)
+        png_path <- tempfile(fileext = ".png")
+        magick::image_write(img, path = png_path, format = "png", density = 300)
+        
+        grobs[[length(grobs) + 1]] <- grid::rasterGrob(magick::image_read(png_path))
+        grob_labels <- c(grob_labels, paste0("File: ", fid))
+      }
+    } # file
+    
+    # Arrange plots for this interval in 3x4 grids (12 per page)
+    n_plots <- length(grobs)
+    if (n_plots > 0) {
+      for (i in seq(1, n_plots, by = 12)) {
+        grid_grobs  <- grobs[i:min(i + 11, n_plots)]
+        grid_labels <- grob_labels[i:min(i + 11, n_plots)]
+        
+        # Conditional title based on number of intervals
+        if (multiple_intervals) {
+          grid_title <- paste0(
+            "Plot type: ", plot_type,
+            "   |   Channel: ", channel,
+            "   |   Interval: ", interval,
+            "\n\nShowing plots ", i, "-", min(i + 11, n_plots),
+            " of ", n_plots
+          )
+        } else {
+          grid_title <- paste0(
+            "Plot type: ", plot_type,
+            "   |   Channel: ", channel,
+            "\n\nShowing plots ", i, "-", min(i + 11, n_plots),
+            " of ", n_plots
+          )
+        }
+        
+        gridExtra::grid.arrange(
+          grobs = grid_grobs,
+          ncol  = 3,
+          nrow  = 4,
+          top   = grid_title
+        )
+        cat("\\newpage\n")
+      }
+    } else {
+      if (multiple_intervals) {
+        cat("*No plots found for this interval.*\n\n")
+      } else {
+        cat("*No plots found.*\n\n")
+      }
+    }
+  } # interval
+} # channel
+
+```
+
+

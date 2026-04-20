@@ -1,0 +1,51 @@
+Package: ClockCyteR.spatial
+Title: ClockCyteR.spatial implements spatial analysis of circadian data
+Version: 0.1.0
+Authors@R: 
+    person("Marco", "Ferrari", , "m.ferrari20@imperial.ac.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9407-7970"))
+Description: The ClockCyteR.spatial package enables spatiotemporal analysis of timeseries data extracted from timelapse images across multiple channels. It performs multivariate analysis of circadian parameters starting from period, phase, and amplitude from defined ROIs and can calculate network features (optimised for Suprachiasmatic Nucleus organotypic slices).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
+Imports:
+    astsa,
+    circular,
+    cli,
+    data.table,
+    dplyr,
+    ggcorrplot,
+    ggplot2,
+    ggpubr,
+    igraph,
+    imputeTS,
+    minpack.lm,
+    plyr,
+    pracma,
+    purrr,
+    RImageJROI,
+    rlang,
+    rstatix,
+    scales,
+    sf,
+    stringr,
+    svglite,
+    tibble,
+    tidygraph,
+    tidyr,
+    tidyselect,
+    plotly,
+    scico
+Suggests:
+    covr,
+    testthat (>= 3.0.0),
+    withr,
+    knitr,
+    rmarkdown,
+    spelling
+Config/testthat/edition: 3
+URL: https://cabajr.github.io/ClockCyteR.spatial/
+Language: en-US
