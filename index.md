@@ -2,7 +2,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![codecov](https://codecov.io/github/cabaJr/ClockCyteR.spatial/graph/badge.svg?token=KOWNTO252W)](https://codecov.io/github/cabaJr/ClockCyteR.spatial)
+[![codecov](https://codecov.io/github/cabaJr/ClockCyteR.spatial/graph/badge.svg?token=RT9D0M2QLI)](https://codecov.io/github/cabaJr/ClockCyteR.spatial)
 [![R-CMD-check](https://github.com/cabaJr/ClockCyteR.spatial/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/cabaJr/ClockCyteR.spatial/actions/workflows/R-CMD-check.yaml)
 [![Last
 Commit](https://img.shields.io/github/last-commit/cabaJr/ClockCyteR.spatial)](https://github.com/cabaJr/ClockCyteR.spatial)
