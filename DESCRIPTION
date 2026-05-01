@@ -39,7 +39,8 @@ Imports:
     tidyselect,
     plotly,
     scico,
-    magick (>= 2.9.0)
+    magick (>= 2.9.0),
+    tinytex (>= 0.58)
 Suggests:
     covr,
     testthat (>= 3.0.0),
