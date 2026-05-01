@@ -8,8 +8,8 @@ generate_plot_type_reports(
   params,
   file_rows,
   storage_fold = "plots",
-  plot_report_template = "plot_type_report_template.Rmd",
-  plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports")
+  plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports"),
+  pdf = FALSE
 )
 }
 \arguments{
@@ -21,23 +21,27 @@ generate_plot_type_reports(
 file's results directory where plots are stored. Defaults to
 \code{"plots"}.}
 
-\item{plot_report_template}{Character string giving the filename of the Rmd
-template to use. Defaults to \code{"plot_type_report_template.Rmd"}.}
-
 \item{plot_report_dir}{Character string giving the output directory for
 rendered reports. Defaults to \code{file.path(params$paths$base_dir,
   "reports", "plot_reports")}.}
+
+\item{pdf}{Logical; if \code{TRUE} render PDF reports instead of HTML.
+Requires \pkg{magick}, \pkg{tinytex}, and a TinyTeX installation
+(\code{tinytex::install_tinytex()}). Defaults to \code{FALSE}.}
 }
 \value{
-Called for its side effects (PDF reports written to
+Called for its side effects (reports written to
 \code{plot_report_dir}). Returns \code{NULL} invisibly.
 }
 \description{
-Renders one PDF report per plot type, collating the corresponding plot
-across all files, intervals, and channels using an Rmd template.
+Renders one report per plot type, collating the corresponding plot across
+all files, intervals, and channels using an Rmd template. Output is HTML
+by default; set \code{pdf = TRUE} for PDF output (requires additional
+system dependencies).
 }
 \examples{
 \dontrun{
 generate_plot_type_reports(params, file_rows)
+generate_plot_type_reports(params, file_rows, pdf = TRUE)
 }
 }

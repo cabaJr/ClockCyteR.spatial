@@ -39,15 +39,17 @@ Imports:
     tidyselect,
     plotly,
     scico,
-    magick (>= 2.9.0),
-    tinytex (>= 0.58)
+    rmarkdown
 Suggests:
     covr,
     testthat (>= 3.0.0),
     withr,
+    spelling,
     knitr,
-    rmarkdown,
-    spelling
+    magick (>= 2.9.0),
+    tinytex (>= 0.58),
+    gridExtra,
+    grid
 Config/testthat/edition: 3
 URL: https://cabajr.github.io/ClockCyteR.spatial/
 Language: en-US

@@ -4,23 +4,30 @@
 \alias{generate_reports}
 \title{generate_reports}
 \usage{
-generate_reports(params, file_rows)
+generate_reports(params, file_rows, pdf = FALSE)
 }
 \arguments{
 \item{params}{A named list of analysis parameters as produced by \code{make_params()}.}
 
 \item{file_rows}{A tibble of file metadata as produced by \code{index_files()}.}
+
+\item{pdf}{Logical; if \code{TRUE} render PDF reports instead of HTML.
+Requires \pkg{magick}, \pkg{tinytex}, and a TinyTeX installation
+(\code{tinytex::install_tinytex()}). Defaults to \code{FALSE}.}
 }
 \value{
 Called for its side effects (report files written to disk). Returns
 \code{NULL} invisibly.
 }
 \description{
-Renders a per-file HTML or PDF report for each file in the project,
-collecting all plot types across intervals and channels.
+Renders a per-file report for each file in the project, collecting all
+plot types across intervals and channels. Output is HTML by default;
+set \code{pdf = TRUE} for PDF output (requires additional system
+dependencies).
 }
 \examples{
 \dontrun{
 generate_reports(params, file_rows)
+generate_reports(params, file_rows, pdf = TRUE)
 }
 }

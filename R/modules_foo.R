@@ -1121,11 +1121,16 @@ validate_params <- function(p) {
 
 #' generate_reports
 #'
-#' Renders a per-file HTML or PDF report for each file in the project,
-#' collecting all plot types across intervals and channels.
+#' Renders a per-file report for each file in the project, collecting all plot
+#' types across intervals and channels. Output is HTML by default (no system
+#' dependencies); set \code{pdf = TRUE} for PDF output (requires additional
+#' system dependencies — see Details).
 #'
 #' @param params A named list of analysis parameters as produced by \code{make_params()}.
 #' @param file_rows A tibble of file metadata as produced by \code{index_files()}.
+#' @param pdf Logical; if \code{TRUE} render PDF reports instead of HTML.
+#'   Requires \pkg{magick}, \pkg{tinytex}, and a TinyTeX installation
+#'   (\code{tinytex::install_tinytex()}). Defaults to \code{FALSE}.
 #'
 #' @return Called for its side effects (report files written to disk). Returns
 #'   \code{NULL} invisibly.
@@ -1134,80 +1139,96 @@ validate_params <- function(p) {
 #' @examples
 #' \dontrun{
 #' generate_reports(params, file_rows)
+#' generate_reports(params, file_rows, pdf = TRUE)
 #' }
-generate_reports <- function(params, file_rows) {
-  intervals <- names(params$time$intervals)
-  channels <- names(params$channels)
-  plot_types <- c(params$plotting$plot_types, params$plotting$network_plot_types)
-  base_dir <- params$paths$base_dir
+generate_reports <- function(params, file_rows, pdf = FALSE) {
+  intervals   <- names(params$time$intervals)
+  channels    <- names(params$channels)
+  plot_types  <- c(params$plotting$plot_types, params$plotting$network_plot_types)
+  base_dir    <- params$paths$base_dir
   reports_dir <- file.path(base_dir, "reports")
 
   if (!dir.exists(reports_dir)) dir.create(reports_dir)
 
   n_files <- length(file_rows$file_id)
-  pb_id <- cli::cli_progress_bar("Generating reports", total = n_files)
+  pb_id   <- cli::cli_progress_bar("Generating reports", total = n_files)
 
-  purrr::walk(file_rows$file_id, function(fid){
+  purrr::walk(file_rows$file_id, function(fid) {
     generate_file_report(
-    file_id =fid,
-    params = params,
-    base_dir = base_dir,
-    intervals = intervals,
-    channels = channels,
-    plot_types = plot_types
-  )
+      file_id    = fid,
+      params     = params,
+      base_dir   = base_dir,
+      intervals  = intervals,
+      channels   = channels,
+      plot_types = plot_types,
+      pdf        = pdf
+    )
     cli::cli_progress_update(id = pb_id)
-    })
+  })
+
   cli::cli_progress_done(id = pb_id)
   message("Reports generated.")
 }
 
 #' generate_plot_type_reports
 #'
-#' Renders one PDF report per plot type, collating the corresponding plot
-#' across all files, intervals, and channels using an Rmd template.
+#' Renders one report per plot type, collating the corresponding plot across
+#' all files, intervals, and channels using an Rmd template. Output is HTML
+#' by default; set \code{pdf = TRUE} for PDF output (requires additional
+#' system dependencies — see Details).
 #'
 #' @param params A named list of analysis parameters as produced by \code{make_params()}.
 #' @param file_rows A tibble of file metadata as produced by \code{index_files()}.
 #' @param storage_fold Character string naming the subfolder within each
 #'   file's results directory where plots are stored. Defaults to
 #'   \code{"plots"}.
-#' @param plot_report_template Character string giving the filename of the Rmd
-#'   template to use. Defaults to \code{"plot_type_report_template.Rmd"}.
 #' @param plot_report_dir Character string giving the output directory for
 #'   rendered reports. Defaults to \code{file.path(params$paths$base_dir,
 #'   "reports", "plot_reports")}.
+#' @param pdf Logical; if \code{TRUE} render PDF reports instead of HTML.
+#'   Requires \pkg{magick}, \pkg{tinytex}, and a TinyTeX installation
+#'   (\code{tinytex::install_tinytex()}). Defaults to \code{FALSE}.
 #'
-#' @return Called for its side effects (PDF reports written to
+#' @return Called for its side effects (reports written to
 #'   \code{plot_report_dir}). Returns \code{NULL} invisibly.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' generate_plot_type_reports(params, file_rows)
+#' generate_plot_type_reports(params, file_rows, pdf = TRUE)
 #' }
 generate_plot_type_reports <- function(
     params,
     file_rows,
-    storage_fold = "plots",
-    plot_report_template = "plot_type_report_template.Rmd",
-    plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports")
+    storage_fold    = "plots",
+    plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports"),
+    pdf             = FALSE
 ) {
-  intervals   <- names(params$time$intervals)
-  channels    <- names(params$channels)
-  plot_types  <- c(params$plotting$plot_types, params$plotting$network_plot_types)
-  base_dir    <- params$paths$base_dir
+  if (pdf) {
+    check_pdf_deps()
+    plot_report_template <- "plot_type_report_template_pdf.Rmd"
+    output_ext           <- ".pdf"
+  } else {
+    plot_report_template <- "plot_type_report_template.Rmd"
+    output_ext           <- ".html"
+  }
+
+  intervals  <- names(params$time$intervals)
+  channels   <- names(params$channels)
+  plot_types <- c(params$plotting$plot_types, params$plotting$network_plot_types)
+  base_dir   <- params$paths$base_dir
 
   if (!dir.exists(plot_report_dir)) dir.create(plot_report_dir, recursive = TRUE)
 
   n_plot_types <- length(plot_types)
-  pb_id <- cli::cli_progress_bar("Generating plot-type reports", total = n_plot_types)
+  pb_id        <- cli::cli_progress_bar("Generating plot-type reports", total = n_plot_types)
 
   purrr::walk(plot_types, function(pt) {
     rmarkdown::render(
-      input = system.file("rmd", plot_report_template, package = "ClockCyteR.spatial"),
-      output_file = file.path(plot_report_dir, paste0("plot_report_", pt, ".pdf")),
-      params = list(
+      input       = system.file("rmd", plot_report_template, package = "ClockCyteR.spatial"),
+      output_file = file.path(plot_report_dir, paste0("plot_report_", pt, output_ext)),
+      params      = list(
         channel_params = params$channels,
         file_rows      = file_rows,
         base_dir       = base_dir,
