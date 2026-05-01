@@ -29,6 +29,7 @@ You can install the development version of ClockCyteR.spatial from
 GitHub:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("cabaJr/ClockCyteR.spatial")
 ```
@@ -68,6 +69,7 @@ rhythms in brain tissue.*
 A template to run the code using the toy dataset is available here.
 
 ``` r
+
 
 # Copy the toy dataset to a writable location (avoids writing into the package folder)
 base_dir <- setup_example()           # or setup_example("~/my_analysis") for a persistent copy
