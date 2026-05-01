@@ -1,10 +1,6 @@
 ---
 title: "Plot Type Report: `r params$plot_type`"
-output:
-  html_document:
-    self_contained: true
-    toc: true
-    toc_float: true
+output: pdf_document
 params:
   channel_params: NULL
   file_rows: NULL
@@ -17,12 +13,16 @@ params:
 
 ```{r setup, include=FALSE}
 library(knitr)
+library(magick)
+library(dplyr)
+library(gridExtra)
+library(grid)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ## Plots by Channel and Interval
 
-```{r plots, results='asis'}
+```{r plots, results='asis', fig.width=8, fig.height=8}
 plot_type      <- params$plot_type
 plot_name      <- plot_type_to_name(plot_type)
 base_dir       <- params$base_dir
@@ -37,14 +37,15 @@ channels           <- intersect(channels, enabled_channels)
 multiple_intervals <- length(intervals) > 1
 
 for (channel in channels) {
-  cat("\n\n# Channel:", channel, "—", channel_params[[channel]]$label, "\n\n")
+  cat("\n\n# Channel:", channel, ":", channel_params[[channel]]$label, "\n\n")
 
   for (interval in intervals) {
     if (multiple_intervals) {
       cat("\n\n## Interval:", interval, "\n\n")
     }
 
-    found_any <- FALSE
+    grobs       <- list()
+    grob_labels <- character(0)
 
     for (fid in file_rows$file_id) {
       if (multiple_intervals) {
@@ -62,15 +63,39 @@ for (channel in channels) {
                                    save_format  = save_format)
 
       if (file.exists(plot_path)) {
-        found_any <- TRUE
-        cat(paste0("\n\n### File: ", fid, "\n\n"))
-        svg_content <- paste(readLines(plot_path, warn = FALSE), collapse = "\n")
-        cat(svg_content, "\n\n")
+        img      <- magick::image_read_svg(plot_path)
+        png_path <- tempfile(fileext = ".png")
+        magick::image_write(img, path = png_path, format = "png", density = 300)
+        grobs[[length(grobs) + 1]] <- grid::rasterGrob(magick::image_read(png_path))
+        grob_labels <- c(grob_labels, paste0("File: ", fid))
       }
     }
 
-    if (!found_any) cat("*No plots found.*\n\n")
-    cat("<hr>\n")
+    n_plots <- length(grobs)
+    if (n_plots > 0) {
+      for (i in seq(1, n_plots, by = 12)) {
+        grid_grobs  <- grobs[i:min(i + 11, n_plots)]
+        grid_labels <- grob_labels[i:min(i + 11, n_plots)]
+
+        if (multiple_intervals) {
+          grid_title <- paste0("Plot type: ", plot_type,
+                               "   |   Channel: ", channel,
+                               "   |   Interval: ", interval,
+                               "\n\nShowing plots ", i, "-", min(i + 11, n_plots),
+                               " of ", n_plots)
+        } else {
+          grid_title <- paste0("Plot type: ", plot_type,
+                               "   |   Channel: ", channel,
+                               "\n\nShowing plots ", i, "-", min(i + 11, n_plots),
+                               " of ", n_plots)
+        }
+
+        gridExtra::grid.arrange(grobs = grid_grobs, ncol = 3, nrow = 4, top = grid_title)
+        cat("\\newpage\n")
+      }
+    } else {
+      cat("*No plots found.*\n\n")
+    }
   }
 }
 ```

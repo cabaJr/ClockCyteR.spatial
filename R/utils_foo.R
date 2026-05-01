@@ -248,6 +248,34 @@ extract_vars <- function(params, file_rows, vars, network = FALSE, individual = 
 
 }
 
+check_pdf_deps <- function() {
+  missing_pkgs <- character(0)
+  if (!requireNamespace("magick",    quietly = TRUE)) missing_pkgs <- c(missing_pkgs, "magick")
+  if (!requireNamespace("tinytex",   quietly = TRUE)) missing_pkgs <- c(missing_pkgs, "tinytex")
+  if (!requireNamespace("gridExtra", quietly = TRUE)) missing_pkgs <- c(missing_pkgs, "gridExtra")
+
+  if (length(missing_pkgs) > 0) {
+    stop(
+      "PDF report generation requires additional packages: ",
+      paste(missing_pkgs, collapse = ", "), ".\n",
+      "Install them with: install.packages(c(",
+      paste0('"', missing_pkgs, '"', collapse = ", "), "))",
+      call. = FALSE
+    )
+  }
+
+  if (!tinytex::is_tinytex()) {
+    stop(
+      "TinyTeX (LaTeX) is not installed. PDF generation requires it.\n",
+      "Install it with: tinytex::install_tinytex()\n",
+      "Or use the default HTML output by leaving pdf = FALSE.",
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+
 #' Render an Rmd report for a single file
 #'
 #' @param file_id Character; file identifier.
@@ -259,12 +287,13 @@ extract_vars <- function(params, file_rows, vars, network = FALSE, individual = 
 #'   report.
 #' @param storage_fold Character; subdirectory containing the plots. Defaults
 #'   to \code{"plots"}.
-#' @param report_template Character; filename of the Rmd template. Defaults
-#'   to \code{"report_template.Rmd"}.
 #' @param output_dir Character; directory where the rendered report is saved.
 #'   Defaults to a \code{reports} subdirectory inside \code{base_dir}.
+#' @param pdf Logical; if \code{TRUE} render a PDF instead of HTML. Requires
+#'   \pkg{magick}, \pkg{tinytex}, and a TinyTeX installation. Defaults to
+#'   \code{FALSE}.
 #'
-#' @return Called for its side effect of rendering an HTML report; returns
+#' @return Called for its side effect of rendering a report; returns
 #'   the output file path invisibly.
 #' @keywords internal
 generate_file_report <- function(
@@ -275,9 +304,17 @@ generate_file_report <- function(
     channels,
     plot_types,
     storage_fold = "plots",
-    report_template = "report_template.Rmd",
-    output_dir = file.path(base_dir, "reports")
+    output_dir   = file.path(base_dir, "reports"),
+    pdf          = FALSE
 ) {
+  if (pdf) {
+    check_pdf_deps()
+    report_template <- "report_template_pdf.Rmd"
+    output_ext      <- ".pdf"
+  } else {
+    report_template <- "report_template.Rmd"
+    output_ext      <- ".html"
+  }
   # Build period summary path
   period_summary_path <- file.path(base_dir, paste0(file_id, "_results"),
                                    "rds",
@@ -307,7 +344,7 @@ generate_file_report <- function(
   # Render the report
   rmarkdown::render(
     input = system.file("rmd", report_template, package = "ClockCyteR.spatial"),
-    output_file = file.path(output_dir, paste0("report_", file_id, ".pdf")),
+    output_file = file.path(output_dir, paste0("report_", file_id, output_ext)),
     params = list(
       channel_params = params$channels,
       file_id = file_id,
