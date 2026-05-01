@@ -39,13 +39,13 @@ Imports:
     tidyselect,
     plotly,
     scico,
-    knitr,
     rmarkdown
 Suggests:
     covr,
     testthat (>= 3.0.0),
     withr,
     spelling,
+    knitr,
     magick (>= 2.9.0),
     tinytex (>= 0.58),
     gridExtra,

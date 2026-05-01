@@ -12,8 +12,8 @@ generate_file_report(
   channels,
   plot_types,
   storage_fold = "plots",
-  report_template = "report_template.Rmd",
-  output_dir = file.path(base_dir, "reports")
+  output_dir = file.path(base_dir, "reports"),
+  pdf = FALSE
 )
 }
 \arguments{
@@ -33,14 +33,15 @@ report.}
 \item{storage_fold}{Character; subdirectory containing the plots. Defaults
 to \code{"plots"}.}
 
-\item{report_template}{Character; filename of the Rmd template. Defaults
-to \code{"report_template.Rmd"}.}
-
 \item{output_dir}{Character; directory where the rendered report is saved.
 Defaults to a \code{reports} subdirectory inside \code{base_dir}.}
+
+\item{pdf}{Logical; if \code{TRUE} render a PDF instead of HTML. Requires
+\pkg{magick}, \pkg{tinytex}, and a TinyTeX installation. Defaults to
+\code{FALSE}.}
 }
 \value{
-Called for its side effect of rendering an HTML report; returns
+Called for its side effect of rendering a report; returns
 the output file path invisibly.
 }
 \description{
