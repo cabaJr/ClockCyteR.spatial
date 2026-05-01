@@ -1,12 +1,13 @@
 # generate_reports
 
-Renders a per-file HTML or PDF report for each file in the project,
-collecting all plot types across intervals and channels.
+Renders a per-file report for each file in the project, collecting all
+plot types across intervals and channels. Output is HTML by default; set
+`pdf = TRUE` for PDF output (requires additional system dependencies).
 
 ## Usage
 
 ``` r
-generate_reports(params, file_rows)
+generate_reports(params, file_rows, pdf = FALSE)
 ```
 
 ## Arguments
@@ -21,6 +22,13 @@ generate_reports(params, file_rows)
   A tibble of file metadata as produced by
   [`index_files()`](https://cabajr.github.io/ClockCyteR.spatial/reference/index_files.md).
 
+- pdf:
+
+  Logical; if `TRUE` render PDF reports instead of HTML. Requires
+  magick, tinytex, and a TinyTeX installation
+  ([`tinytex::install_tinytex()`](https://rdrr.io/pkg/tinytex/man/install_tinytex.html)).
+  Defaults to `FALSE`.
+
 ## Value
 
 Called for its side effects (report files written to disk). Returns
@@ -31,5 +39,6 @@ Called for its side effects (report files written to disk). Returns
 ``` r
 if (FALSE) { # \dontrun{
 generate_reports(params, file_rows)
+generate_reports(params, file_rows, pdf = TRUE)
 } # }
 ```

@@ -13,8 +13,8 @@ generate_file_report(
   channels,
   plot_types,
   storage_fold = "plots",
-  report_template = "report_template.Rmd",
-  output_dir = file.path(base_dir, "reports")
+  output_dir = file.path(base_dir, "reports"),
+  pdf = FALSE
 )
 ```
 
@@ -48,17 +48,17 @@ generate_file_report(
 
   Character; subdirectory containing the plots. Defaults to `"plots"`.
 
-- report_template:
-
-  Character; filename of the Rmd template. Defaults to
-  `"report_template.Rmd"`.
-
 - output_dir:
 
   Character; directory where the rendered report is saved. Defaults to a
   `reports` subdirectory inside `base_dir`.
 
+- pdf:
+
+  Logical; if `TRUE` render a PDF instead of HTML. Requires magick,
+  tinytex, and a TinyTeX installation. Defaults to `FALSE`.
+
 ## Value
 
-Called for its side effect of rendering an HTML report; returns the
-output file path invisibly.
+Called for its side effect of rendering a report; returns the output
+file path invisibly.

@@ -1,7 +1,9 @@
 # generate_plot_type_reports
 
-Renders one PDF report per plot type, collating the corresponding plot
-across all files, intervals, and channels using an Rmd template.
+Renders one report per plot type, collating the corresponding plot
+across all files, intervals, and channels using an Rmd template. Output
+is HTML by default; set `pdf = TRUE` for PDF output (requires additional
+system dependencies).
 
 ## Usage
 
@@ -10,8 +12,8 @@ generate_plot_type_reports(
   params,
   file_rows,
   storage_fold = "plots",
-  plot_report_template = "plot_type_report_template.Rmd",
-  plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports")
+  plot_report_dir = file.path(params$paths$base_dir, "reports", "plot_reports"),
+  pdf = FALSE
 )
 ```
 
@@ -32,20 +34,22 @@ generate_plot_type_reports(
   Character string naming the subfolder within each file's results
   directory where plots are stored. Defaults to `"plots"`.
 
-- plot_report_template:
-
-  Character string giving the filename of the Rmd template to use.
-  Defaults to `"plot_type_report_template.Rmd"`.
-
 - plot_report_dir:
 
   Character string giving the output directory for rendered reports.
   Defaults to
   `file.path(params$paths$base_dir, "reports", "plot_reports")`.
 
+- pdf:
+
+  Logical; if `TRUE` render PDF reports instead of HTML. Requires
+  magick, tinytex, and a TinyTeX installation
+  ([`tinytex::install_tinytex()`](https://rdrr.io/pkg/tinytex/man/install_tinytex.html)).
+  Defaults to `FALSE`.
+
 ## Value
 
-Called for its side effects (PDF reports written to `plot_report_dir`).
+Called for its side effects (reports written to `plot_report_dir`).
 Returns `NULL` invisibly.
 
 ## Examples
@@ -53,5 +57,6 @@ Returns `NULL` invisibly.
 ``` r
 if (FALSE) { # \dontrun{
 generate_plot_type_reports(params, file_rows)
+generate_plot_type_reports(params, file_rows, pdf = TRUE)
 } # }
 ```
