@@ -47,7 +47,7 @@ Steps 3 and 4 generate the `_results/` folders consumed by `index_files()`.
 
 If you use ClockCyteR.spatial in your research, please cite:
 
-Ferrari et al. (2026, in press). *A high-throughput live imaging platform to investigate circuit-dependent regulation of circadian rhythms in brain tissue.*
+Ferrari et al. (2026, Advanced Science). *A high-throughput live imaging platform to investigate circuit-dependent regulation of circadian rhythms in brain tissue.*
 
 ## Usage
 
