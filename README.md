@@ -27,6 +27,8 @@ You can install the development version of ClockCyteR.spatial from GitHub:
 remotes::install_github("cabaJr/ClockCyteR.spatial")
 ```
 
+**Installation time:** on a standard Windows or macOS computer, installing ClockCyteR.spatial and its dependencies from CRAN binaries typically takes 3–8 minutes on a fresh R setup. If common packages such as the tidyverse are already installed, it takes 1–3 minutes. To generate PDF reports, you also need a LaTeX distribution: `tinytex::install_tinytex()` adds about 5 minutes. For faster, parallel installation, use `pak::pak("cabajr/ClockCyteR.spatial")`.
+
 ## Prerequisites: ImageJ preprocessing
 
 Before using ClockCyteR.spatial, raw multichannel TIFF time series must be preprocessed
